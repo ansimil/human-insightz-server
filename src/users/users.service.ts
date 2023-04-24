@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -26,6 +27,10 @@ export class UsersService {
     const token = await this.jwtService.sign({ id: savedUser._id });
 
     return { token };
+  }
+
+  loginUser(user: LoginUserDto) {
+    return user;
   }
 
   findAll() {
