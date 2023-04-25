@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -22,15 +22,33 @@ export class UsersService {
       ...user,
       password: hashedPassword,
     });
-    const savedUser = await newUser.save();
+    await newUser.save();
 
-    const token = await this.jwtService.sign({ id: savedUser._id });
+    return 'user signed up successfully';
 
-    return { token };
+    // const token = await this.jwtService.sign({ id: savedUser._id });
+
+    // return { token };
   }
 
-  loginUser(user: LoginUserDto) {
-    return user;
+  async loginUser(user: LoginUserDto) {
+    const { email, password } = user;
+    const foundUser = await this.userModel.findOne({ email });
+    if (!foundUser) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+    const isPasswordMatched = await bcrypt.compare(
+      password,
+      foundUser.password,
+    );
+
+    if (!isPasswordMatched) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const token = this.jwtService.sign({ id: foundUser._id });
+
+    return { token };
   }
 
   findAll() {
