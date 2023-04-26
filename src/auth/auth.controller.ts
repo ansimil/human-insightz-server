@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Headers,
+  Req,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
@@ -32,7 +40,12 @@ export class AuthController {
 
   @UseGuards(AuthGuard())
   @Get()
-  authenticate() {
-    return 'authenticated';
+  authenticate(@Req() request) {
+    const user = {
+      id: request.user._id,
+      firstName: request.user.firstName,
+      surname: request.user.surname,
+    };
+    return user;
   }
 }
